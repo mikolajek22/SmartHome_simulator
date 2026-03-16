@@ -11,8 +11,8 @@ int main()
 
     Thermometer t1(mac1, 0xC0A80002, 0xFFFFFF00, 0xC0A80001);
 
-    while (true)
-    {
+    // while (true)
+    // {
         t1.simulate();
 
         std::time_t now = std::time(nullptr);
@@ -22,5 +22,33 @@ int main()
                   << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
+
+    Date date = {
+        .second =0,
+        .minute = 0,
+        .hour = 0,
+        .day = 1,
+        .month = 1,
+        .year = 2026
+    };
+
+    Date endDate = {
+        .second =0,
+        .minute = 0,
+        .hour = 0,
+        .day = 1,
+        .month = 1,
+        .year = 2027
+    };
+
+    WeatherSim simulator(date, endDate);
+
+    while (!(date == endDate))
+    {
+        date = simulator.simulateSingleHour();
     }
+
+    
+
 }

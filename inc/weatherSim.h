@@ -10,6 +10,15 @@ struct Date {
     uint8_t month;
     uint16_t year;
 };
+inline bool operator==(const Date& a, const Date& b)
+{
+    return a.second == b.second &&
+           a.minute == b.minute &&
+           a.hour   == b.hour &&
+           a.day    == b.day &&
+           a.month  == b.month &&
+           a.year   == b.year;
+}
 
 class WeatherSim {
     public:
@@ -17,8 +26,9 @@ class WeatherSim {
         WeatherSim(Date (&start), Date (&end));
 
         void updateWeather();
+        // uint16_t simulateSingleHour(Date (&simulatedDate));
+        Date simulateSingleHour();
         
-
     private:
 
         /* Day of the year */

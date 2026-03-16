@@ -4,13 +4,17 @@
 #include <cmath>
 #include <cstdlib>
 #include <numbers>
-
+#include <iostream>
 
 #define NUMBER_OF_DAYS 365
 #define HOURS_PER_DAY 24
 #define HOUR_OF_MAX_TEMP 14
 
 const float pi = 3.1415926f;
+
+bool isLapYear(uint16_t year);
+uint16_t dayOfYear(const Date &d);
+void nextDay(Date &d);
 
 
 float randf(float min, float max)
@@ -177,4 +181,71 @@ void WeatherSim::updateWeather() {
     simulatLight();
     simulateSoilHumidity();
     simulateAirQuality();
+}
+
+Date WeatherSim::simulateSingleHour()
+{
+    Date actDate = date;
+    dayIdx = dayOfYear(date);
+    updateWeather();
+    std::cout << "Performing Simulation for "
+          << int(date.day) << "/"
+          << int(date.month) << "/"
+          << date.year << " : "
+          << int(date.hour) << ":"
+          << int(date.minute) << ":"
+          << int(date.second)
+          << std::endl;
+    date.hour++;
+    if (date.hour > 23)
+    {
+        date.hour = 0;
+        nextDay(date);
+    }
+    return actDate;
+}
+
+static const uint8_t daysOfMonths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+
+bool isLapYear(uint16_t year) 
+{
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+uint16_t dayOfYear(const Date &d)
+{
+    uint16_t day = 0;
+    for (uint8_t i = 1; i < d.month; i++)
+    {
+        day += daysOfMonths[i - 1];
+
+        if (i == 2 && isLapYear(d.year))
+        {
+            day+=1;
+        }
+    }
+    day += d.day;
+    return day;
+}
+
+void nextDay(Date &d)
+{
+    uint8_t days = daysOfMonths[d.month - 1];
+    if (d.month == 2 && isLapYear(d.year))
+    {
+        days = 29;
+    }
+    d.day++;
+
+    if (d.day > days)
+    {
+        d.day = 1;
+        d.month++;
+        if (d.month > 12)
+        {
+            d.month = 1;
+            d.year++;
+        }
+    }
 }
