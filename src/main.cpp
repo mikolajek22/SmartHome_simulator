@@ -4,6 +4,7 @@
 #include <chrono>
 #include "thermometer.h"
 #include "weatherSim.h"
+#include "csv_manager.h"
 
 int main()
 {
@@ -36,10 +37,10 @@ int main()
     Date endDate = {
         .second =0,
         .minute = 0,
-        .hour = 0,
+        .hour = 10,
         .day = 1,
         .month = 1,
-        .year = 2027
+        .year = 2026
     };
 
     WeatherSim simulator(date, endDate);
@@ -49,6 +50,9 @@ int main()
         date = simulator.simulateSingleHour();
     }
 
+
+    CSV_Manager csv_man;
+    csv_man.openFile("../data/test.txt");
     
 
 }

@@ -14,6 +14,7 @@ add_executable(iot_sim_app
     src/main.cpp
     src/device.cpp
     src/weatherSim.cpp
+    src/csv_manager.cpp
 
     src/Passive/thermometer.cpp
     src/Passive/windowSensor.cpp
