@@ -40,19 +40,20 @@ int main()
         .hour = 10,
         .day = 1,
         .month = 1,
-        .year = 2026
+        .year = 2030
     };
 
     WeatherSim simulator(date, endDate);
-
+    CSV_Manager csv_man;
+    csv_man.openFile("../data/weather.csv");
     while (!(date == endDate))
     {
         date = simulator.simulateSingleHour();
+        csv_man.AddRow(date, simulator);
     }
 
 
-    CSV_Manager csv_man;
-    csv_man.openFile("../data/test.txt");
+    
     
 
 }

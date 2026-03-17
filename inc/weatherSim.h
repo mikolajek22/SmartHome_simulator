@@ -26,8 +26,18 @@ class WeatherSim {
         WeatherSim(Date (&start), Date (&end));
 
         void updateWeather();
-        // uint16_t simulateSingleHour(Date (&simulatedDate));
         Date simulateSingleHour();
+
+        /* Getters for Simulated weather */
+        bool getRain() { return rain; }
+        float getRainIntensity() { return rainIntensity; }
+        float getTemperature() {return temperature;}
+        float getHumidity() {return humidity;}
+        float getSoilHumidity() {return soilHumidity;}
+        float getPressure() {return pressure;}
+        float getLight() {return light;}
+        float getAirQuality() {return airQuality;}
+
         
     private:
 

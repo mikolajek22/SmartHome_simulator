@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "weatherSim.h"
+
 using namespace std;
 
 class CSV_Manager {
@@ -11,7 +13,7 @@ class CSV_Manager {
         void openFile(string path);
         void closeFile();
         void writeFile();
-        void AddRow();
+        void AddRow(Date &date, WeatherSim &simulator);
     private:
         ofstream file; 
 };
