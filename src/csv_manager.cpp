@@ -72,29 +72,29 @@ void CSV_Manager::AddRow(Date &date, WeatherSim &simulator)
     tmpString = timeToString(date.hour, date.minute, date.second);
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getTemperature());
+    tmpString = format("{:.3f}", simulator.getTemperature());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getAirQuality());
+    tmpString = format("{:.3f}", simulator.getAirQuality());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getPressure());
+    tmpString = format("{:.3f}", simulator.getPressure());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getHumidity());
+    tmpString = format("{:.3f}", simulator.getHumidity());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getLight());
+    tmpString = format("{:.3f}", simulator.getLight());
     file << tmpString << ",";
 
     tmpString = format("{}", simulator.getRain());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getRainIntensity());
+    tmpString = format("{:.3f}", simulator.getRainIntensity());
     file << tmpString << ",";
 
-    tmpString = format("{:.2f}", simulator.getSoilHumidity());
-    file << tmpString << ",";
+    tmpString = format("{:.3f}", simulator.getSoilHumidity());
+    file << tmpString;
 
     file << "\n";
 }
@@ -106,5 +106,5 @@ string dateToString(uint16_t y, uint8_t m, uint8_t d)
 
 string timeToString(uint8_t h, uint8_t m, uint8_t s)
 {
-    return format("{:02}/{:02}/{:02}", h, m, s);
+    return format("{:02}:{:02}:{:02}", h, m, s);
 }

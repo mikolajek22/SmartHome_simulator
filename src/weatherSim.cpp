@@ -27,7 +27,9 @@ WeatherSim::WeatherSim()
     dayIdx = 0;
 }
 
-WeatherSim::WeatherSim(Date (&start), Date (&end)) : date(start), endDate(end)
+WeatherSim::WeatherSim(Date (&start), Date (&end)) : date(start), endDate(end), 
+                        pressure(1013.0f), temperature(-10.0f), humidity(70.0f), 
+                        soilHumidity(50.0f), rainHoursRemaining(0)
 {
     dayIdx = 0;
 }
@@ -46,7 +48,7 @@ float WeatherSim::simulateTemperature()
     float daily = 5.0f * sin(2.0f * pi * (date.hour - HOUR_OF_MAX_TEMP) / HOURS_PER_DAY);
 
     /* Random factor */
-    float noise = randf(-2.0f, 2.0f);
+    float noise = randf(-6.0f, 6.0f);
 
     float temp = seasonal + daily + noise;
 
@@ -55,13 +57,14 @@ float WeatherSim::simulateTemperature()
     if (temp > 30.0) temp = 30.0;
     if (temp < -10.0) temp = -10.0;
 
-    temperature = temp;
-    return temp;
+    // temperature = temp;
+    temperature = 0.8f * temperature + 0.2f * temp;
+    return temperature;
 }
 
 float WeatherSim::simulateAirQuality()
 {
-    float winter = 30.0f * (1.0f - sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS));
+    float winter = 30.0f * (1.0f - sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS - pi/2));
 
     airQuality = 30.0f + winter;
 
@@ -76,67 +79,92 @@ float WeatherSim::simulateAirQuality()
 }
 float WeatherSim::simulatePressure()
 {
-    float seasonal = 6.0f * sin(2.0f * pi* dayIdx / NUMBER_OF_DAYS);
-    float daily = 1.0f * sin(2.0f * pi* date.hour / HOURS_PER_DAY);
-    float noise = randf(-3.0f, 3.0f);
+    float newPressure = 0;
+    float seasonal = 2.0f * sin(2.0f * pi* dayIdx / NUMBER_OF_DAYS);
+    float daily = 0.5f * sin(2.0f * pi* date.hour / HOURS_PER_DAY);
+    float noise = randf(-1.0f, 1.0f);
 
-    pressure = 1013.0f + seasonal + daily + noise;
-    if (pressure < 980.0f) pressure = 980.0f;
-    if (pressure < 1040.0f) pressure = 1040.0f;
+    newPressure = 1013.0f + seasonal + daily + noise;
+    newPressure += randf(-20.0f, 20.0f);
+    if (newPressure < 980.0f) newPressure = 980.0f;
+    if (newPressure > 1040.0f) newPressure = 1040.0f;
 
+    pressure = 0.95f * pressure + 0.05f * newPressure;
+    
     return pressure;
 }
 float WeatherSim::simulateHumidity()
 {
+    static float prevHumidity = 0;
     humidity = 70.0f;
 
     if (temperature > 25.0f) humidity -= 20.0f;
 
-    if (rain) humidity += 25.0f;
+    if (rain) humidity += 15.0f;
 
     humidity += randf(-10.0f, 10.0f);
 
     if (humidity > 100.0f) humidity = 100.0f;
     if (humidity < 20.0f) humidity = 20.0f;
 
+    if (prevHumidity)
+        humidity = 0.8f * humidity + 0.2f * prevHumidity;
+    prevHumidity = humidity;
     return humidity;
 }
 
 float WeatherSim::simulateSoilHumidity()
 {
-    if (rain) soilHumidity += rainIntensity * 0.8f;
+    float newHumidity = humidity;
+    if (rain) 
+    {
+        float rainFactor = std::min(rainIntensity, 5.0f);
+        newHumidity += rainFactor * 0.7;
+    }
+    
 
     // NOTE: validate if it is not too fast - maybe it should be dependent from temperature also.
-    float evaporation = light / 1200.0f;
-    soilHumidity -= evaporation;
+    float evaporation = (light / 10000.0f) + (temperature > 25.0f ? 0.3f : 0.0f);
+    newHumidity -= evaporation;
 
-    if (soilHumidity > 100.0f) soilHumidity = 100.0f;
-    if (soilHumidity < 0.0f) soilHumidity = 0.0f;
-
+    newHumidity *= 0.995f;
+    
+    if (newHumidity > 100.0f) newHumidity = 100.0f;
+    if (newHumidity < 0.0f) newHumidity = 0.0f;
+    soilHumidity = 0.9f * soilHumidity + 0.1f * newHumidity;
     return soilHumidity;
 }
 
 bool WeatherSim::simulateRain()
 {
+    
     if (rainHoursRemaining > 0)
     {
         rainHoursRemaining--;
         rain = true;
         return rain;
     }
+    if (date.hour != 0) 
+    {
+        rain = false;
+        return false;
+    }
     // season from 0.1 to to 0.6
-    float seasonal = 0.25f * sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS - pi / 2.0f) + 0.35f;
+    float seasonal = 0.1f * sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS - pi / 2.0f) + 0.16f;
 
     float propability = seasonal;
 
-    if (pressure > 1005.0f) propability += 0.25f;
-    if (humidity > 80.0f) propability += 20.0f;
+    if (pressure < 1005.0f) propability += 0.15f;
+    if (humidity > 80.0f) propability += 0.10f;
+
+    if (propability > 0.7f) propability = 0.7f;
+    if (propability < 0.0f) propability = 0.0f;
 
     float r = randf(0.0f, 1.0f);
 
     if (propability > r)
     {
-        rainHoursRemaining = randf(3,12);
+        rainHoursRemaining = randf(12,72);
         rain = true;
         return rain;
     }
@@ -151,9 +179,21 @@ float WeatherSim::simulatRainIntensity() {
         return rainIntensity;
     }
 
-    rainIntensity = randf(0.2f, 4.0f);
+    // rainIntensity = randf(0.0f, 2.0f);
 
-    if (humidity > 0.90f) rainIntensity += randf(2.0f, 5.0f);
+    // // randomly big intesity
+    // if (randf(0.0f,1.0f) < 0.2f) rainIntensity += randf(2.0f, 5.0f);
+
+    float r = randf(0.0f, 1.0f);
+
+    if (r < 0.8f)
+        rainIntensity = randf(0.0f, 1.0f);  //soft rain
+    else if (r < 0.9f)
+        rainIntensity = randf(1.0f, 3.0f);   // med rain
+    else
+        rainIntensity = randf(3.0f, 8.0f);   // big rain
+
+    if (humidity > 90.0f) rainIntensity += randf(1.0f, 2.0f);
     
     return rainIntensity;
 }
@@ -164,7 +204,7 @@ float WeatherSim::simulatLight()
     float dayLight = sin(pi * date.hour / HOURS_PER_DAY);
     if (dayLight < 0.0f) dayLight = 0.0f;
 
-    float seasonal = 0.6f + 0.4f * sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS);
+    float seasonal = 0.6f + 0.4f * sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS - pi/2);
     light = 1000.0f * dayLight * seasonal;
 
     if (rain) light *=0.3f;

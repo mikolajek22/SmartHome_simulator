@@ -37,10 +37,10 @@ int main()
     Date endDate = {
         .second =0,
         .minute = 0,
-        .hour = 10,
+        .hour = 0,
         .day = 1,
         .month = 1,
-        .year = 2030
+        .year = 2027
     };
 
     WeatherSim simulator(date, endDate);
