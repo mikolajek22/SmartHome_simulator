@@ -1,0 +1,3 @@
+[submodule "libs/algorithms"]
+	path = libs/algorithms
+	url = https://github.com/mikolajek22/cpp_algorithms.git
