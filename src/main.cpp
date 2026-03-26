@@ -6,8 +6,12 @@
 #include "weatherSim.h"
 #include "csv_manager.h"
 
+#include "stack.h"
+#include "stack.h"
 int main()
 {
+    // Stack<int, 10> stack;
+    // cout << stack.count() << endl;
     uint8_t mac1[MAC_SIZE] = {0x10,0x20,0x30,0x40,0x50,0x01};
 
     Thermometer t1(mac1, 0xC0A80002, 0xFFFFFF00, 0xC0A80001);
