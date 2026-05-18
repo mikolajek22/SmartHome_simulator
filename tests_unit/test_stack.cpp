@@ -14,44 +14,39 @@ TEST(StackTest, TopAtStart)
     EXPECT_EQ(s.count(), 0);
 }
 
-TEST(StackTest, PushMethod)
-{
-    Stack<int, 5> s;
-    int data = 10;
-    EXPECT_EQ(s.push(data), STACK_OK);
-}
-
-TEST(StackTest, Full)
+TEST(StackTest, Sequence)
 {
     Stack<int, 10> s;
-    for (int i = 0; i < 10; i++)
-    {
-        s.push(100+i);
-    }
-    EXPECT_EQ(s.isFull(), STACK_FULL);
-}
-
-TEST(StackTest, Push)
-{
-    Stack<int, 2> s;
-    s.push(1);
     int data = 0;
-    s.pop(data);
-    EXPECT_EQ(data, 1);
-}
-
-TEST(StackTest, Empty)
-{
-    Stack<int, 10> s;
-    int data;
     for (int i = 0; i < 10; i++)
     {
-        s.push(100+i);
+        EXPECT_EQ(s.push(100+i), STACK_OK);
+        EXPECT_EQ(s.peek(data, 0), STACK_OK);
+        EXPECT_EQ(data, 100+i);
     }
+
+    EXPECT_EQ(s.push(123), STACK_FULL);
+
     for (int i = 0; i < 10; i++)
     {
         s.pop(data);
         EXPECT_EQ(data, 109 - i);
     }
     EXPECT_EQ(s.isEmpty(), STACK_EMPTY);
+}
+
+TEST(StackTest, EdgeSize)
+{
+    Stack<int, 1024 * 1024> s;
+    int data;
+    for (int i = 0; i < 1024*1024; i++)
+    {
+        EXPECT_EQ(s.push(i), STACK_OK);
+    }
+    for (int i = 0; i < 1024*1024; i++)
+    {
+        EXPECT_EQ(s.pop(data), STACK_OK);
+        EXPECT_EQ(data, 1024*1024 - 1 - i);
+    }
+
 }

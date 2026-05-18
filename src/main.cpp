@@ -5,6 +5,7 @@
 #include "thermometer.h"
 #include "weatherSim.h"
 #include "csv_manager.h"
+#include "db_manager.h"
 
 #include "stack.h"
 #include "stack.h"
@@ -35,17 +36,19 @@ int main()
         .hour = 0,
         .day = 1,
         .month = 1,
-        .year = 2026
+        .year = 2025
     };
 
     Date endDate = {
         .second =0,
         .minute = 0,
-        .hour = 0,
-        .day = 1,
-        .month = 1,
-        .year = 2027
+        .hour = 17,
+        .day = 17,
+        .month = 5,
+        .year = 2026
     };
+    DatabaseManager db;
+    db.open("../iot.db");
 
     WeatherSim simulator(date, endDate);
     CSV_Manager csv_man;
@@ -53,7 +56,16 @@ int main()
     while (!(date == endDate))
     {
         date = simulator.simulateSingleHour();
-        csv_man.AddRow(date, simulator);
+        // csv_man.AddRow(date, simulator);
+        db.insertWeatherData(date, simulator);
+    }
+
+    while(true)
+    {
+        date = simulator.simulateSingleHour();
+        // csv_man.AddRow(date, simulator);
+        db.insertWeatherData(date, simulator);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 

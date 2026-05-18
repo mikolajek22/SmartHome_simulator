@@ -64,7 +64,7 @@ float WeatherSim::simulateTemperature()
 
 float WeatherSim::simulateAirQuality()
 {
-    float winter = 30.0f * (1.0f - sin(2.0f * pi * dayIdx / NUMBER_OF_DAYS - pi/2));
+    float winter = 30.0f * (/*1.0f - */sin((2.0f * pi * dayIdx / NUMBER_OF_DAYS) - pi/2));
 
     airQuality = 30.0f + winter;
 

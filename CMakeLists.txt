@@ -1,18 +1,20 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(IoT_Simulator)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
 add_subdirectory(libs/algorithms)
+
+find_package(SQLite3 REQUIRED)
 
 add_executable(iot_sim_app
     src/main.cpp
     src/device.cpp
     src/weatherSim.cpp
     src/csv_manager.cpp
+    src/db_manager.cpp
 
     src/Passive/thermometer.cpp
     src/Passive/windowSensor.cpp
@@ -31,21 +33,28 @@ add_executable(iot_sim_app
     src/Active/heater.cpp
     src/Active/conditioning.cpp
     src/Active/bulb.cpp
-)   
-
-target_include_directories(iot_sim_app PRIVATE
-                        ${CMAKE_CURRENT_SOURCE_DIR}/inc
-                        ${CMAKE_CURRENT_SOURCE_DIR}/inc/Passive
-                        ${CMAKE_CURRENT_SOURCE_DIR}/inc/Active
 )
 
-target_link_libraries(iot_sim_app PRIVATE algorithms)
+target_include_directories(iot_sim_app PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/Passive
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/Active
+)
+
+target_link_libraries(iot_sim_app PRIVATE
+    algorithms
+    SQLite::SQLite3
+)
 
 # TESTS
+
 enable_testing()
+
 find_package(GTest REQUIRED)
+
 add_executable(test_stack
-                tests_unit/test_stack.cpp
+    tests_unit/test_stack.cpp
+    tests_unit/test_ll_stack.cpp
 )
 
 target_link_libraries(test_stack PRIVATE
